@@ -81,4 +81,52 @@ router.post("/signup", (req, res, next) => {
   });
 });
 
+// Login
+router.post("/login", (req, res, next) => {
+  const { email, password } = req.body;
+
+  // Check if email and password are provided
+  if (email === "" || password === "") {
+    res.status(400).json({ message: "Provide email and password" });
+    return;
+  }
+
+  User.findOne({ email })
+    .then((foundUser) => {
+      if (!foundUser) {
+        res.status(401).json({ messgae: "User does not exist" });
+        return;
+      }
+
+      // Uncomment this later when the verify-email endpoint is done
+      //   if (!foundUser.isVerified) {
+      //     res.status(401).json({
+      //       message:
+      //         "Please verify your account. A verification link has been sent to your email"
+      //     });
+      //     return;
+      //   }
+
+      const correctPassword = bcrypt.compareSync(password, foundUser.password);
+      if (correctPassword) {
+        const { _id, email, firstName, lastName } = foundUser;
+
+        const payload = { _id, email, firstName, lastName };
+        const authToken = jwt.sign(payload, process.env.TOKEN_SECRET, {
+          algorithm: "HS256",
+          expiresIn: "6h"
+        });
+        res.status(200).json({ authToken: authToken });
+      } else {
+        res.status(401).json({
+          message:
+            "Unable to authenticate the user. Incorrect email or password"
+        });
+      }
+    })
+    .catch((error) =>
+      res.status(500).json({ message: "Internal Server Error" })
+    );
+});
+
 module.exports = router;
