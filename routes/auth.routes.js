@@ -129,4 +129,12 @@ router.post("/login", (req, res, next) => {
     );
 });
 
+router.get("/verify", isAuthenticated, (req, res, next) => {
+  //If JWT token is valid the payload gets decoded by the isAuthenticated middleware and made available on the req.payload
+  console.log(`req.payload`, req.payload);
+
+  //Send back the object with the user data previously set as the token payload
+  res.status(200).json(req.payload);
+});
+
 module.exports = router;
