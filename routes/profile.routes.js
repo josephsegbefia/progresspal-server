@@ -5,7 +5,8 @@ const User = require("../models/User.model");
 router.post("/profiles/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
-    const { occupation, location, avatarUrl, interests } = req.body;
+    const { occupation, location, avatarUrl, interests, firstName, lastName } =
+      req.body;
 
     // Find the user by the ID
 
@@ -21,14 +22,16 @@ router.post("/profiles/:userId", async (req, res) => {
     if (!profile) {
       profile = await Profile.create({
         user: userId,
+        firstName,
+        lastName,
         occupation,
         location,
         avatarUrl,
         interests
       });
     } else {
-      profile.firstName = user.firstName;
-      profile.lastName = user.lastName;
+      profile.firstName = firstName;
+      profile.lastName = lastName;
       profile.occupation = occupation;
       profile.location = location;
       profile.avatarUrl = avatarUrl;
